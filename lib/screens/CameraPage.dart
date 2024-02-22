@@ -18,6 +18,7 @@ class _CameraPageState extends State<CameraPage> {
   late CameraController _controller;
   double _zoomLevel = 0.0;
   bool _sliderVisible = true;
+
   bool _imageCaptured = false;
 
   // For picker
@@ -53,7 +54,7 @@ class _CameraPageState extends State<CameraPage> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
-            onPressed: _resetCameraPage,
+            onPressed: _showDeleteConfirmationDialog,
             backgroundColor: const Color.fromARGB(255, 29, 168, 47),
             shape: const CircleBorder(),
             child: const Icon(
@@ -249,5 +250,32 @@ class _CameraPageState extends State<CameraPage> {
       _imageCaptured = false;
       galleryFile = null;
     });
+  }
+
+  void _showDeleteConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Delete'),
+          content: const Text('Are you sure you want to reset the camera?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _resetCameraPage();
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
