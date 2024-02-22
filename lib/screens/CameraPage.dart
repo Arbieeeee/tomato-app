@@ -52,11 +52,11 @@ class _CameraPageState extends State<CameraPage> {
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          const FloatingActionButton(
-            onPressed: null,
-            backgroundColor: Color.fromARGB(255, 29, 168, 47),
-            shape: CircleBorder(),
-            child: Icon(
+          FloatingActionButton(
+            onPressed: _resetCameraPage,
+            backgroundColor: const Color.fromARGB(255, 29, 168, 47),
+            shape: const CircleBorder(),
+            child: const Icon(
               Icons.delete,
               color: Colors.white,
             ),
@@ -232,5 +232,22 @@ class _CameraPageState extends State<CameraPage> {
       context,
       MaterialPageRoute(builder: (context) => LearnMore(image: galleryFile)),
     );
+  }
+
+  void _resetCameraPage() async {
+    // Dispose the existing controller
+    await _controller.dispose();
+
+    // Initialize a new controller
+    _controller = CameraController(cameras[0], ResolutionPreset.medium);
+    await _controller.initialize();
+
+    // Reset state variables
+    setState(() {
+      _zoomLevel = 0.0;
+      _sliderVisible = true;
+      _imageCaptured = false;
+      galleryFile = null;
+    });
   }
 }
