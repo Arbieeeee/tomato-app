@@ -196,21 +196,20 @@ class _CameraPageState extends State<CameraPage> {
     );
   }
 
-  Future getImage(
-    ImageSource img,
-  ) async {
+  Future getImage(ImageSource img) async {
     final pickedFile = await picker.pickImage(source: img);
     XFile? xfilePick = pickedFile;
-    setState(
-      () {
-        if (xfilePick != null) {
-          galleryFile = File(pickedFile!.path);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Nothing is selected')));
-        }
-      },
-    );
+    setState(() {
+      if (xfilePick != null) {
+        galleryFile = File(pickedFile!.path);
+        _sliderVisible = false;
+        _imageCaptured = true;
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nothing is selected')),
+        );
+      }
+    });
   }
 
   Future<void> _captureImage() async {
