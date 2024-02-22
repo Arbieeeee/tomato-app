@@ -1,9 +1,10 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:gallery_saver/gallery_saver.dart';
-import 'package:tomatoapp/screens/LearnMore.dart';
+import 'package:tomatoapp/screens/LearnMore.dart'; 
 
 late List<CameraDescription> cameras;
 
@@ -18,7 +19,7 @@ class _CameraPageState extends State<CameraPage> {
   late CameraController _controller;
   double _zoomLevel = 0.0;
   bool _sliderVisible = true;
-  bool _imageCaptured = false;
+  bool _learnMoreActive = false; // Track if Learn More button should be active
 
   // For picker
   File? galleryFile;
@@ -49,33 +50,16 @@ class _CameraPageState extends State<CameraPage> {
     }
     return Scaffold(
       backgroundColor: const Color(0xFF38384E),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          const FloatingActionButton(
-            onPressed: null,
-            backgroundColor: Color.fromARGB(255, 29, 168, 47),
-            shape: CircleBorder(),
-            child: Icon(
-              Icons.delete,
-              color: Colors.white,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 10),
-            child: FloatingActionButton(
-              onPressed: () {
-                _showPicker(context: context);
-              },
-              backgroundColor: const Color.fromARGB(255, 29, 168, 47),
-              shape: const CircleBorder(),
-              child: const Icon(
-                Icons.file_upload_rounded,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _showPicker(context: context);
+        },
+        backgroundColor: const Color.fromARGB(255, 29, 168, 47),
+        shape: const CircleBorder(),
+        child: const Icon(
+          Icons.file_upload_rounded,
+          color: Colors.white,
+        ),
       ),
       body: Center(
         child: Stack(
@@ -106,16 +90,17 @@ class _CameraPageState extends State<CameraPage> {
                     left: MediaQuery.of(context).size.width / 2 -
                         MediaQuery.of(context).size.width * 0.45,
                     child: Container(
-                      width: MediaQuery.of(context).size.width * 0.9,
-                      height: MediaQuery.of(context).size.height * 0.5,
+                      width: MediaQuery.of(context).size.width * 0.9, 
+                      height: MediaQuery.of(context).size.height * 0.5, 
                       decoration: BoxDecoration(
                           shape: BoxShape.rectangle,
                           color: const Color(0xFFD9D9D9),
                           borderRadius: BorderRadius.circular(10)),
                       child: galleryFile == null
                           ? CameraPreview(_controller
-                            ..setZoomLevel(_zoomLevel)
-                            ..startImageStream((image) {}))
+                              ..setZoomLevel(_zoomLevel)
+                              ..startImageStream((image) {
+                              }))
                           : Image.file(galleryFile!),
                     ),
                   ),
@@ -155,9 +140,11 @@ class _CameraPageState extends State<CameraPage> {
               child: Padding(
                 padding: const EdgeInsets.only(left: 16, bottom: 16),
                 child: ElevatedButton(
-                  onPressed: _imageCaptured ? _goToLearnMorePage : null,
+                  onPressed: _learnMoreActive ? _goToLearnMorePage : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 29, 168, 47),
+                    backgroundColor: _learnMoreActive
+                        ? const Color.fromARGB(255, 29, 168, 47)
+                        : Colors.grey[400], // Change color based on activity
                     foregroundColor: Colors.white,
                     disabledBackgroundColor: Colors.grey[400],
                   ),
@@ -204,6 +191,8 @@ class _CameraPageState extends State<CameraPage> {
       () {
         if (xfilePick != null) {
           galleryFile = File(pickedFile!.path);
+          _sliderVisible = false; // Disable the zoom slider
+          _learnMoreActive = true; // Enable the Learn More button
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Nothing is selected')));
@@ -220,8 +209,8 @@ class _CameraPageState extends State<CameraPage> {
     final XFile file = await _controller.takePicture();
     setState(() {
       galleryFile = File(file.path);
-      _sliderVisible = false;
-      _imageCaptured = true;
+      _sliderVisible = true; // Enable the zoom slider
+      _learnMoreActive = true; // Enable the Learn More button
     });
 
     await GallerySaver.saveImage(file.path);
